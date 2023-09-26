@@ -1,0 +1,18 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM FC_00_SYS
+VAR
+	T_100ms_TON: TON;
+	T_100ms_TOF: TOF;
+	SYS_TOG_100ms: BOOL := FALSE;
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*INIT TIMER*)
+T_100ms_TON(IN:=NOT T_100ms_TOF.Q , PT:= T#100ms);
+T_100ms_TOF(IN:=T_100ms_TON.Q , PT:= T#100ms);
+
+SYS_TOG_100ms := T_100ms_TON.Q;
+END_PROGRAM

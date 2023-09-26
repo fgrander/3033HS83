@@ -1,0 +1,17 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE Type_LED_RGB :
+STRUCT
+	Hue				:REAL;
+	Saturation			:REAL:= 100.0;
+	Brightness			:REAL:=100;
+	Switch_ON			:BOOL;
+	Switch_RANDOM	:BOOL;
+	Config				:Type_LED_RGB_CONFIG;
+	Red					:BYTE;
+	Green				:BYTE;
+	Blue				:BYTE;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

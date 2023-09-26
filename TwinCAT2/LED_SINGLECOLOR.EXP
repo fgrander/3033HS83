@@ -1,0 +1,52 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM LED_SINGLECOLOR
+VAR_INPUT
+	i_Switch_ON:	BOOL;
+	i_Switch_OFF:	BOOL;
+END_VAR
+
+VAR_OUTPUT
+	b_Light_ON: BOOL;
+END_VAR
+
+VAR
+END_VAR
+
+VAR_IN_OUT
+	io_Type_LED: Type_LED;		(*CONTAINS THE LIGHT STATUS*)
+	io_FB_Dimmer2Switch: FB_Dimmer2Switch;
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF i_Switch_ON THEN
+	io_Type_LED.Switch_ON := TRUE;
+END_IF
+
+IF i_Switch_OFF THEN
+	io_Type_LED.Switch_ON := FALSE;
+END_IF
+
+io_FB_Dimmer2Switch(
+	bSwitchDimmUp:= FALSE,
+	bSwitchDimmDown:= FALSE,
+	bOn:= io_Type_LED.Switch_ON,
+	bOff:= NOT io_Type_LED.Switch_ON,
+	bSetDimmValue:= FALSE,
+	nDimmValue:= 0,
+	tSwitchOverTime:=T#300MS ,
+	tDimmTime:= REAL_TO_TIME(io_Type_LED.Config.tDimmTime),
+	bMemoryModeOn:= TRUE,
+	nOnValueWithoutMemoryMode:= 0,
+	bDimmOnMode:= io_Type_LED.Config.bDimmOnMode,
+	tDimmOnTime:= REAL_TO_TIME(io_Type_LED.Config.tDimmOnTime),
+	bDimmOffMode:= io_Type_LED.Config.bDimmOffMode,
+	tDimmOffTime:= REAL_TO_TIME(io_Type_LED.Config.tDimmOffTime),
+	nOutMin:= 0,
+	nOutMax:=100,
+	bLight=> b_Light_ON);
+
+io_Type_LED.Brightness := REAL_TO_BYTE(UINT_TO_REAL(io_FB_Dimmer2Switch.nOut)/100*io_Type_LED.Config.Brightness_MAX);
+END_PROGRAM
