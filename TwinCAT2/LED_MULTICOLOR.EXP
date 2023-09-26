@@ -1,0 +1,135 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM LED_MULTICOLOR
+VAR_INPUT
+	i_Switch_ON:	BOOL;
+	i_Switch_OFF:	BOOL;
+	di_Sys_Time:	DINT;
+END_VAR
+
+VAR_OUTPUT
+	b_Light_ON: BOOL;
+END_VAR
+VAR
+	v_HUE: REAL;
+	v_SATURATION: REAL;
+	v_VALUE: REAL;
+	v_RED: BYTE;
+	v_GREEN: BYTE;
+	v_BLUE: BYTE;
+	v_VAR_H: REAL;
+	v_VAR_I: REAL;
+	v_VAR_1: REAL;
+	v_VAR_2: REAL;
+	v_VAR_3: REAL;
+	v_VAR_R: REAL;
+	v_VAR_G: REAL;
+	v_VAR_B: REAL;
+	v_Sys_Time_last_Call:	DINT;
+	v_Cycle_Time:	DINT;
+END_VAR
+VAR_IN_OUT
+	io_Type_LED_RGB: Type_LED_RGB;		(*CONTAINS THE LIGHT STATUS*)
+	io_FB_Dimmer2Switch: FB_Dimmer2Switch;
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*Calculate the System Time between the last and the actual cycle for automatic color switching*)
+v_Cycle_Time := di_Sys_Time - v_Sys_Time_last_Call;
+v_Sys_Time_last_Call := di_Sys_Time;
+
+IF i_Switch_ON THEN
+	io_Type_LED_RGB.Switch_ON := TRUE;
+END_IF
+
+IF i_Switch_OFF THEN
+	io_Type_LED_RGB.Switch_ON := FALSE;
+END_IF
+
+io_FB_Dimmer2Switch(
+	bSwitchDimmUp:= FALSE,
+	bSwitchDimmDown:= FALSE,
+	bOn:= io_Type_LED_RGB.Switch_ON,
+	bOff:= NOT io_Type_LED_RGB.Switch_ON,
+	bSetDimmValue:= FALSE,
+	nDimmValue:= 0,
+	tSwitchOverTime:=T#300MS ,
+	tDimmTime:= REAL_TO_TIME(io_Type_LED_RGB.Config.tDimmTime),
+	bMemoryModeOn:= TRUE,
+	nOnValueWithoutMemoryMode:= 0,
+	bDimmOnMode:= io_Type_LED_RGB.Config.bDimmOnMode,
+	tDimmOnTime:= REAL_TO_TIME(io_Type_LED_RGB.Config.tDimmOnTime),
+	bDimmOffMode:= io_Type_LED_RGB.Config.bDimmOffMode,
+	tDimmOffTime:= REAL_TO_TIME(io_Type_LED_RGB.Config.tDimmOffTime),
+	nOutMin:= 0,
+	nOutMax:=REAL_TO_UINT( io_Type_LED_RGB.Brightness),
+	bLight=> b_Light_ON);
+
+IF io_Type_LED_RGB.Config.Speed_RANDOM < 1000 THEN
+	io_Type_LED_RGB.Config.Speed_RANDOM := 1000;
+END_IF
+
+IF io_Type_LED_RGB.Switch_RANDOM THEN
+	io_Type_LED_RGB.Hue := io_Type_LED_RGB.Hue + 360/(io_Type_LED_RGB.Config.Speed_RANDOM)*DINT_TO_REAL(v_Cycle_Time);
+
+	IF io_Type_LED_RGB.Hue >= 360 THEN
+		io_Type_LED_RGB.Hue := io_Type_LED_RGB.Hue-360;
+	END_IF
+	IF io_Type_LED_RGB.Hue < 0 THEN
+		io_Type_LED_RGB.Hue := 0;
+	END_IF
+END_IF
+
+v_HUE := io_Type_LED_RGB.Hue / 360;
+v_SATURATION := io_Type_LED_RGB.Saturation / 100;
+v_VALUE := (io_Type_LED_RGB.Brightness*UINT_TO_REAL(io_FB_Dimmer2Switch.nOut)/100) / 100;
+
+IF v_SATURATION = 0 THEN
+	v_RED := REAL_TO_BYTE(v_VALUE * 255);
+	v_GREEN := REAL_TO_BYTE(v_VALUE * 255);
+	v_BLUE := REAL_TO_BYTE(v_VALUE * 255);
+ELSE
+	v_VAR_H := v_HUE * 6;
+	v_VAR_I := FLOOR(REAL_TO_LREAL(v_VAR_H));
+	v_VAR_1:= v_VALUE * (1 - v_SATURATION);
+	v_VAR_2:= v_VALUE * (1 - v_SATURATION * (v_VAR_H - v_VAR_I));
+	v_VAR_3:= v_VALUE * (1 - v_SATURATION * (1 - (v_VAR_H - v_VAR_I)));
+
+	CASE REAL_TO_INT(v_VAR_I) OF
+	0:
+		v_VAR_R := v_VALUE;
+		v_VAR_G := v_VAR_3;
+		v_VAR_B := v_VAR_1;
+	1:
+		v_VAR_R := v_VAR_2;
+		v_VAR_G := v_VALUE;
+		v_VAR_B := v_VAR_1;
+	2:
+		v_VAR_R := v_VAR_1;
+		v_VAR_G := v_VALUE;
+		v_VAR_B := v_VAR_3;
+	3:
+		v_VAR_R := v_VAR_1;
+		v_VAR_G := v_VAR_2;
+		v_VAR_B := v_VALUE;
+	4:
+		v_VAR_R := v_VAR_3;
+		v_VAR_G := v_VAR_1;
+		v_VAR_B := v_VALUE;
+	ELSE
+		v_VAR_R := v_VALUE;
+		v_VAR_G := v_VAR_1;
+		v_VAR_B := v_VAR_2;
+	END_CASE
+
+	v_RED := REAL_TO_BYTE(v_VAR_R * 255);
+	v_GREEN := REAL_TO_BYTE(v_VAR_G * 255);
+	v_BLUE := REAL_TO_BYTE(v_VAR_B * 255);
+END_IF
+
+io_Type_LED_RGB.Red := v_RED;
+io_Type_LED_RGB.Green := v_GREEN;
+io_Type_LED_RGB.Blue := v_BLUE;
+END_PROGRAM

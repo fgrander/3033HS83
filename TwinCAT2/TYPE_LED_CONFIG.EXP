@@ -1,0 +1,14 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE Type_LED_CONFIG :
+STRUCT
+	tDimmTime: 		REAL	:= 5000;
+	bDimmOnMode:	BOOL	:= TRUE;
+	tDimmOnTime:		REAL	:= 500;
+	bDimmOffMode:	BOOL	:= TRUE;
+	tDimmOffTime:		REAL	:= 1000;
+	Brightness_MAX	:REAL:=255;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

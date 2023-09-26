@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<PlcGivenDataInfo><VarConfigAddresses><VarConfigAddress><Name>.stDMXInDataLinie01</Name><Type Decoration="100A5867">ST_EL6851InData</Type><IGroup>61472</IGroup><IOffset>56</IOffset><BitSize>592</BitSize></VarConfigAddress><VarConfigAddress><Name>.stDMXOutDataLinie01</Name><Type Decoration="10084DDF">ST_EL6851OutData</Type><IGroup>61488</IGroup><IOffset>56</IOffset><BitSize>4160</BitSize></VarConfigAddress></VarConfigAddresses></PlcGivenDataInfo>

@@ -1,0 +1,12 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE Type_LED :
+STRUCT
+	Switch_ON			:BOOL;
+	Switch_RANDOM	:BOOL;
+	Config				:Type_LED_CONFIG;
+	Brightness			:BYTE;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)
